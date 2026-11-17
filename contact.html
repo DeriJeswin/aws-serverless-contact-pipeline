@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud Serverless Contact Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 450px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; box-sizing: border-box; }
+    button { background-color: #0073bb; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #005a94; }
+    #status { margin-top: 15px; font-weight: bold; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <h2>Contact Me</h2>
+  <form id="contactForm">
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <textarea id="message" rows="4" placeholder="Your Message" required></textarea>
+    <button type="button" id="submitBtn" onclick="sendMessage()">Send Message</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+   const API_ENDPOINT = "https://amazonaws.com";
+
+
+    async function sendMessage() {
+      const status = document.getElementById("status");
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      if (!name || !email || !message) {
+        status.style.color = "red";
+        status.innerText = "Please fill in all fields.";
+        return;
+      }
+
+      status.style.color = "#333";
+      status.innerText = "Sending...";
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, email: email, message: message })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          status.style.color = "green";
+          status.innerText = "Success! Reference ID: " + data.id;
+          document.getElementById("contactForm").reset();
+        } else {
+          status.style.color = "red";
+          status.innerText = "Error: " + (data.error || data.message || "Submission failed");
+        }
+      } catch (err) {
+        status.style.color = "red";
+        status.innerText = "Network error: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
